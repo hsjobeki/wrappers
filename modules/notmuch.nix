@@ -4,15 +4,13 @@
   ...
 }:
 wlib.wrapModule (
-  wlib:
-  { config, ... }:
-  let
-    iniFmt = config.pkgs.formats.ini { };
-    writeNotmuchConfig = cfg: iniFmt.generate "notmuch.ini" cfg;
-  in
-  {
-    options = {
-      config = lib.mkOption {
+    { config, wlib, ... }:
+    let
+      iniFmt = config.pkgs.formats.ini { };
+      writeNotmuchConfig = cfg: iniFmt.generate "notmuch.ini" cfg;
+    in
+    {
+      options.config = lib.mkOption {
         type = iniFmt.type;
         default = {
           database = {
@@ -21,12 +19,11 @@ wlib.wrapModule (
           };
         };
       };
-      configFile = lib.mkOption {
+      options.configFile = lib.mkOption {
         type = wlib.types.file config.pkgs;
         default.path = toString (writeNotmuchConfig config.config);
       };
-    };
-    config.package = config.pkgs.notmuch;
-    config.env.NOTMUCH_CONFIG = config.configFile.path;
-  }
+      config.package = config.pkgs.notmuch;
+      config.env.NOTMUCH_CONFIG = config.configFile.path;
+    }
 )
